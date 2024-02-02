@@ -30,84 +30,74 @@ def jupyter_clear_output(notebook):
 # fmt: on
 
 
-def task_pull_fred():
-    """ """
-    file_dep = ["./src/load_fred.py"]
-    file_output = ["fred.parquet"]
-    targets = [DATA_DIR / "pulled" / file for file in file_output]
+
+
+# # Check if .env file exists. If not, create it by copying from .env.example
+# env_file = ".env"
+# env_example_file = "env.example"
+
+# if not os.path.exists(env_file):
+#     shutil.copy(env_example_file, env_file)
+
+
+def task_pull_CRSP_Compustat():
+    """Pull CRSP/Compustat data from WRDS and save to disk
+    """
+    file_dep = [
+        "./src/config.py", 
+        "./src/load_CRSP_stock.py",
+        "./src/load_CRSP_Compustat.py",
+        ]
+    targets = [
+        Path(DATA_DIR) / "pulled" / file for file in 
+        [
+            ## src/load_CRSP_stock.py
+            "CRSP_MSF_INDEX_INPUTS.parquet", 
+            "CRSP_MSIX.parquet", 
+            ## src/load_CRSP_Compustat.py
+            "Compustat.parquet",
+            "CRSP_stock_ciz.parquet",
+            "CRSP_Comp_Link_Table.parquet",
+            "FF_FACTORS.parquet",
+        ]
+    ]
 
     return {
         "actions": [
-            "ipython ./src/load_fred.py",
+            "ipython src/config.py",
+            "ipython src/load_CRSP_stock.py",
+            "ipython src/load_CRSP_Compustat.py",
         ],
         "targets": targets,
         "file_dep": file_dep,
         "clean": True,
+        "verbosity": 2, # Print everything immediately. This is important in
+        # case WRDS asks for credentials.
     }
 
 
-# def task_pull_data_via_presto():
-#     """
-#     Run several data pulls
-
-#     This will run commands like this:
-#     presto-cli --output-format=CSV_HEADER --file=/data/unixhome/src/sql_gross_performance.sql > /data/unixhome/src/sometest.csv
-
-#     """
-#     sql_pulls_dict = {
-#         'sometest.sql':'sometest.csv',
-#     }
-#     file_dep = list(sql_pulls_dict.keys())
-#     file_output = list(sql_pulls_dict.values())
-
-#     targets = [PRIVATE_DATA_DIR / 'sql_pulled' / file for file in file_output]
-
-#     def action_string(sql_file, csv_output):
-#         s = f"""
-#             ssh sql.someurl.com <<-'ENDSSH'
-#             echo Starting Presto Pull Command for {sql_file}
-#             cd {getcwd()}
-#             presto-cli --output-format=CSV_HEADER --file={sql_file} > {csv_output}
-#             """
-#         return s
-#     actions = [
-#                 action_string(sql_file,
-#                               (PRIVATE_DATA_DIR / 'sql_pulled' / sql_pulls_dict[sql_file])
-#                               ) for sql_file in sql_pulls_dict
-#             ]
-#     return {
-#         "actions":actions,
-#         "targets": targets,
-#         'task_dep':[],
-#         "file_dep": file_dep,
-#     }
-
-
-def task_summary_stats():
-    """ """
-    file_dep = ["./src/example_table.py"]
-    file_output = ["example_table.tex"]
-    targets = [OUTPUT_DIR / file for file in file_output]
+def task_calc_Fama_French_1993_factors():
+    """Calculate Factors for Fama-French 1993 model
+    """
+    file_dep = [
+        "./src/calc_Fama_French_1993_factors.py",
+        "./src/misc_tools.py",
+        ]
+    targets = [
+        *[Path(DATA_DIR) / "pulled" / file for file in 
+        [
+            ## src/calc_Fama_French_1993_factors.py
+            "FF_1993_vwret.parquet",
+            "FF_1993_vwret_n.parquet",
+            "FF_1993_factors.parquet",
+            "FF_1993_nfirms.parquet",
+        ]],
+        OUTPUT_DIR / "FF_1993_Comparison.png",
+    ]
 
     return {
         "actions": [
-            "ipython ./src/example_table.py",
-        ],
-        "targets": targets,
-        "file_dep": file_dep,
-        "clean": True,
-    }
-
-
-def task_example_plot():
-    """Example plots"""
-    file_dep = [Path("./src") / file for file in ["example_plot.py", "load_fred.py"]]
-    file_output = ["example_plot.png"]
-    targets = [OUTPUT_DIR / file for file in file_output]
-
-    return {
-        "actions": [
-            "ipython ./src/example_plot.py",
+            "ipython src/calc_Fama_French_1993_factors.py",
         ],
         "targets": targets,
         "file_dep": file_dep,
@@ -123,7 +113,9 @@ def task_convert_notebooks_to_scripts():
     build_dir.mkdir(parents=True, exist_ok=True)
 
     notebooks = [
-        "01_example_notebook.ipynb",
+        "01_wrds_python_package.ipynb",
+        "02_CRSP_market_index.ipynb",
+        "03_Fama_French_1993.ipynb",
     ]
     file_dep = [Path("./src") / file for file in notebooks]
     stems = [notebook.split(".")[0] for notebook in notebooks]
@@ -148,10 +140,12 @@ def task_run_notebooks():
     """Preps the notebooks for presentation format.
     Execute notebooks with summary stats and plots and remove metadata.
     """
-    notebooks = [
-        "01_example_notebook.ipynb",
+    notebooks_to_run_as_md = [
+        "01_wrds_python_package.ipynb",
+        "02_CRSP_market_index.ipynb",
+        "03_Fama_French_1993.ipynb",
     ]
-    stems = [notebook.split(".")[0] for notebook in notebooks]
+    stems = [notebook.split(".")[0] for notebook in notebooks_to_run_as_md]
 
     file_dep = [
         # 'load_other_data.py',
@@ -159,8 +153,6 @@ def task_run_notebooks():
     ]
 
     targets = [
-        ## 01_example_notebook.ipynb output
-        OUTPUT_DIR / "sine_graph.png",
         ## Notebooks converted to HTML
         *[OUTPUT_DIR / f"{stem}.html" for stem in stems],
     ]
@@ -179,62 +171,3 @@ def task_run_notebooks():
         "clean": True,
     }
 
-
-# def task_knit_RMarkdown_files():
-#     """Preps the RMarkdown files for presentation format.
-#     This will knit the RMarkdown files for easier sharing of results.
-#     """
-#     files_to_knit = [
-#         'shift_share.Rmd',
-#         ]
-
-#     files_to_knit_stems = [file.split('.')[0] for file in files_to_knit]
-
-#     file_dep = [
-#         'load_performance_and_loan_merged.py',
-#         *[file + ".Rmd" for file in files_to_knit_stems],
-#         ]
-
-#     file_output = [file + '.html' for file in files_to_knit_stems]
-#     targets = [OUTPUT_DIR / file for file in file_output]
-
-#     def knit_string(file):
-#         return f"""Rscript -e 'library(rmarkdown); rmarkdown::render("{file}.Rmd", output_format="html_document", OUTPUT_DIR="../output/")'"""
-#     actions = [knit_string(file) for file in files_to_knit_stems]
-#     return {
-#         "actions": [
-#                     "module use -a /opt/aws_opt/Modulefiles",
-#                     "module load R/4.2.2",
-#                     *actions],
-#         "targets": targets,
-#         'task_dep':[],
-#         "file_dep": file_dep,
-#     }
-
-
-def task_compile_latex_docs():
-    """Example plots"""
-    file_dep = [
-        "./reports/report_example.tex",
-        "./reports/slides_example.tex",
-        "./src/example_plot.py",
-        "./src/example_table.py",
-    ]
-    file_output = [
-        "./reports/report_example.pdf",
-        "./reports/slides_example.pdf",
-    ]
-    targets = [file for file in file_output]
-
-    return {
-        "actions": [
-            "latexmk -xelatex -cd ./reports/report_example.tex",  # Compile
-            "latexmk -xelatex -c -cd ./reports/report_example.tex",  # Clean
-            "latexmk -xelatex -cd ./reports/slides_example.tex",  # Compile
-            "latexmk -xelatex -c -cd ./reports/slides_example.tex",  # Clean
-            # "latexmk -CA -cd ../reports/",
-        ],
-        "targets": targets,
-        "file_dep": file_dep,
-        "clean": True,
-    }
