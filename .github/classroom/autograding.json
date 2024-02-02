@@ -1,0 +1,94 @@
+{
+  "tests": [
+    {
+      "name": "test_calc_CRSP_indices::test_calc_value_idx",
+      "setup": "",
+      "run": "pytest ./src/test_calc_CRSP_indices.py::test_calc_value_idx",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_calc_CRSP_indices::test_calc_equal_idx",
+      "setup": "",
+      "run": "pytest ./src/test_calc_CRSP_indices.py::test_calc_equal_idx",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_calc_CRSP_indices::test_calc_CRSP_indices_merge",
+      "setup": "",
+      "run": "pytest ./src/test_calc_CRSP_indices.py::test_calc_CRSP_indices_merge",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_calc_CRSP_indices::test_compare_CRSP_manual",
+      "setup": "",
+      "run": "pytest ./src/test_calc_CRSP_indices.py::test_compare_CRSP_manual",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_calc_Fama_French_1993_factors::test_subset_CRSP_to_common_stock_and_exchanges",
+      "setup": "",
+      "run": "pytest ./src/test_calc_Fama_French_1993_factors.py::test_subset_CRSP_to_common_stock_and_exchanges",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_calc_Fama_French_1993_factors::test_calculate_market_equity",
+      "setup": "",
+      "run": "pytest ./src/test_calc_Fama_French_1993_factors.py::test_calculate_market_equity",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_calc_Fama_French_1993_factors::test_factors",
+      "setup": "",
+      "run": "pytest ./src/test_calc_Fama_French_1993_factors.py::test_factors",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_github_skills_tutorials::test_release_based_workflow",
+      "setup": "",
+      "run": "pytest ./src/test_github_skills_tutorials.py::test_release_based_workflow",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "test_github_skills_tutorials::test_connect_the_dots",
+      "setup": "",
+      "run": "pytest ./src/test_github_skills_tutorials.py::test_connect_the_dots",
+      "input": "",
+      "output": "",
+      "comparison": "exact",
+      "timeout": 10,
+      "points": 1
+    }
+  ]
+}
